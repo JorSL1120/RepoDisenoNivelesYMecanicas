@@ -40,11 +40,13 @@ public class GameManager : MonoBehaviour
     public void FinishGameP1()
     {
         WinP1.enabled = true;
+        canRun = false;
     }
     
     public void FinishGameP2()
     {
         WinP2.enabled = true;
+        canRun = false;
     }
 
     public IEnumerator StartGame()
