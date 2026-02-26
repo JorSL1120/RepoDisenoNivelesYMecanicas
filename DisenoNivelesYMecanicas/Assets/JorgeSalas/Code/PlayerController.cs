@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -19,11 +20,16 @@ public class PlayerController : MonoBehaviour
 
     [Header("Player number")]
     public bool player1 = false;
+
+    [Header("Buff")]
+    public float timeToBuff = 6.5f;
+    public Canvas buffCanvasP1;
+    public Canvas buffCanvasP2;
+    private int buffPosition = 50;
+    private float contToBuff = 0;
     
-    [Header("List")]
-    private int[] options = {25, 50, 75};
-    [SerializeField] private int index;
-    [SerializeField] private int result;
+    [Header("Text Cont")]
+    public TextMeshProUGUI timerText;
     
     void Start()
     {
@@ -31,14 +37,22 @@ public class PlayerController : MonoBehaviour
         if (onFinishP1 == null) onFinishP1 = new UnityEvent();
         if (onFinishP2 == null) onFinishP2 = new UnityEvent();
         slider.maxValue = maxSliderValue;
-        index = Random.Range(0, options.Length);
-        result = options[index];
+        contToBuff = 0;
+        buffCanvasP1.enabled = false;
+        buffCanvasP2.enabled = false;
     }
 
     void Update()
     {
-        if (GameManager.Instance.canRun == true) ButtonPressed();
-        ChangeSliderMaxValue();
+        if (GameManager.Instance.canRun == true)
+        {
+            contToBuff += Time.deltaTime;
+            Debug.Log(contToBuff);
+            if(timerText != null) timerText.text = contToBuff.ToString("F2");
+            ButtonPressed();
+        }
+        
+        ChangeNumValue();
     }
 
     public void ButtonPressed()
@@ -53,12 +67,18 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void ChangeSliderMaxValue()
+    public void ChangeNumValue()
     {
-        if (slider.value == result && player1 == false)
+        if ((slider.value == buffPosition && contToBuff <= timeToBuff) && player1 == false)
+        {
             StartCoroutine(ChangeValueClicks());
-        else if (slider.value == result && player1 == true)
+            buffCanvasP2.enabled = true;
+        }
+        else if ((slider.value == buffPosition && contToBuff <= timeToBuff) && player1 == true)
+        {
             StartCoroutine(ChangeValueClicks());
+            buffCanvasP1.enabled = true;
+        }
     }
     
     public IEnumerator ChangeValueClicks()
@@ -66,5 +86,7 @@ public class PlayerController : MonoBehaviour
         changeNum = 2;
         yield return new WaitForSeconds(1.5f);
         changeNum = 1;
+        buffCanvasP2.enabled = false;
+        buffCanvasP1.enabled = false;
     }
 }
